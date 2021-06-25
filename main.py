@@ -2,7 +2,7 @@ import argparse
 import os
 import cv2
 import yaml
-from draw_boxes import draw_boxes
+from utils import draw_boxes
 from detection import Detector
 
 parser = argparse.ArgumentParser()
@@ -11,7 +11,7 @@ parser.add_argument("--save", action="store_true", help="Save movie with detecti
 parser.add_argument("--show", action="store_true", help="Show the detections while the algorithm runs.")
 parser.add_argument("--c", dest="config_path",type=str, default="configs/main-config.yaml" , help="Specify the path to the yaml config, either relative (e.g. config_1.yaml), or absolute (e.g. /home/username/Downloads/config_1.yaml).")
 
-def main(path: str, save: bool, show: bool, config_path: str) -> None:
+def infer(path: str, save: bool, show: bool, config_path: str) -> None:
     """Perform pedestrian detection on a video.
 
     Args:
@@ -65,4 +65,4 @@ def main(path: str, save: bool, show: bool, config_path: str) -> None:
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args.path, args.save, args.show, args.config_path)
+    infer(args.path, args.save, args.show, args.config_path)
