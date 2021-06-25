@@ -17,7 +17,7 @@ To change the configuration, you can change some general parameters in `configs/
 ## Installation
 Tested on Debian 10.0 with x86_64, CUDA 11.3, python3.7.
 ```sh
-git clone https://github.com/a-doering/pedestrian-detection.git
+git clone https://github.com/a-doering/pedestrian_detection.git
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -27,4 +27,20 @@ pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu101
 ```
 
 ## Description
-OpenCV is used to read a video file, in this case an .mp4 file, as this is convenient to display while the inference is running, as well as for saving. The detection framework was chosen to get to know the Detectron2 library by facebook research, its ease to use compared to pedestrian detectors from other repositories and has a decent performance.
+OpenCV is used to read a video file, in this case an .mp4 file, as this is convenient to display while the inference is running, as well as for saving. The detection framework was chosen to get to know the Detectron2 library by facebook research, its ease to use compared to pedestrian detectors from other repositories and has a decent performance, according to the [Detectron2 Model Zoo](https://github.com/facebookresearch/detectron2/blob/master/MODEL_ZOO.md).
+
+## Import as package
+You can import the repository as a package in a file, e.g. `test_importing.py` if the directory structure is as follows:
+
+```sh
+|
+|---__init__.py
+|---test_importing.py
+|---pedestrian_detection/
+```
+
+Import in `test_importing.py` like:
+```python
+from pedestrian_detection import main
+```
+
