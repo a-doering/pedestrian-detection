@@ -1,2 +1,8 @@
 # Virtualenvironment
 .venv/
+# Data
+input_videos/
+output_videos/
+
+# Python
+__pycache__/
