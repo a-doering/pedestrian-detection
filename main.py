@@ -1,58 +1,62 @@
 import argparse
 import os
 import cv2
+import yaml
 from draw_boxes import draw_boxes
+from detection import Detector
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--f", dest="filename", type=str, default="input_videos/People_Walk.mp4" , help="Specify the path to the video, either relative (e.g. input/People_Walk.mp4), or absolute (e.g. /home/username/Downloads/People_Walk.mp4).")
+parser.add_argument("--p", dest="path", type=str, default="input_videos/People_Walk.mp4" , help="Specify the path to the video, either relative (e.g. input/People_Walk.mp4), or absolute (e.g. /home/username/Downloads/People_Walk.mp4).")
 parser.add_argument("--save", action="store_true", help="Save movie with detections.")
 parser.add_argument("--show", action="store_true", help="Show the detections while the algorithm runs.")
-parser.add_argument("--c", dest="config",type=str, default="config_1.json" , help="Specify the path to the config, either relative (e.g. config_1.json), or absolute (e.g. /home/username/Downloads/config_1.json).")
+parser.add_argument("--c", dest="config_path",type=str, default="configs/main-config.yaml" , help="Specify the path to the yaml config, either relative (e.g. config_1.yaml), or absolute (e.g. /home/username/Downloads/config_1.yaml).")
 
-def main(filename: str, show: bool, save: bool, config: str) -> None:
-    """Perform pedestrian detection on video.
+def main(path: str, save: bool, show: bool, config_path: str) -> None:
+    """Perform pedestrian detection on a video.
 
     Args:
-        filename: A filename with ending, e.g. video.mp4.
-        show: If True, the video with detections will be displayed.
+        path: A path with filetype, e.g. video.mp4.
         save: If True, a video with detections will be saved.
-        config: Path to a config file.
+        show: If True, the video with detections will be displayed.
+        config_path: Path to a yaml config file.
     """
-    out_dir = "output_videos"
-    os.makedirs(out_dir, exist_ok=True)
-    out_name = os.path.join(out_dir, filename)
+
+    with open (config_path, "r") as stream:
+        cfg = yaml.safe_load(stream)
+    os.makedirs(cfg["out_dir"], exist_ok=True)
+    out_name = os.path.join(cfg["out_dir"], os.path.basename(path))
 
     # Set OpenCV settings
-    cap = cv2.VideoCapture(filename)
+    cap = cv2.VideoCapture(path)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    out = cv2.VideoWriter(out_name, fourcc, 20.0, (width,height))
+    out = cv2.VideoWriter(out_name, fourcc, 20.0, (width, height))
 
-    i = 0
+    detector = Detector(cfg)
+    print("Starting detection...")
+    processed = 0
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
-        if i > 50:
-            break
+
+        # Detect objects
+        boxes = detector.detect(frame)
+        boxes = detector.post_process(boxes)
+        for box in boxes.pred_boxes:
+            box = box.int().numpy()
+            draw_boxes(frame, (box[0], box[1]), (box[2],box[3]))
+
+        if save:
+            out.write(frame)
         if show:
             cv2.imshow("frame", frame)
             cv2.waitKey(1)
 
-        # TODO: use model to detect, somthing like
-        # boxes = detect(frame)
-        # for box in boxes:
-        #     (x, y, w, h) = [int(val) for val in box]
- 		#     draw_boxes(frame, (x, y), (x + w, y + h))           
-
-        point_1 = (300, 300)
-        point_2 = (0, 100)
-        draw_boxes(frame, point_1, point_2)
-        if save:
-            print(i)
-            i+=1
-            out.write(frame)
+        processed += 1
+        if processed % 10 == 0:
+            print(f"{processed:8} frames processed.")
 
     # Release resources
     cap.release()
@@ -61,4 +65,4 @@ def main(filename: str, show: bool, save: bool, config: str) -> None:
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args.filename, args.show, args.save, args.config)
+    main(args.path, args.save, args.show, args.config_path)

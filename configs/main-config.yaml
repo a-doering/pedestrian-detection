@@ -1,0 +1,10 @@
+out_dir:
+  output_videos
+class_id:
+  0
+score_threshold:
+  0.5
+model_config:
+  "configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"
+model_weights:
+  "detectron2://COCO-Detection/faster_rcnn_R_101_FPN_3x/137851257/model_final_f6e8b1.pkl"

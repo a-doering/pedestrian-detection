@@ -1,7 +1,8 @@
 import cv2
+import numpy as np
 from typing import Tuple
 
-def draw_boxes(frame, point_1: Tuple[int, int], point_2: Tuple[int, int], color: Tuple[int, int] = (0,0,255), line_thickness: int = 2, line_type: int = 1):
+def draw_boxes(frame: np.ndarray, point_1: Tuple[int, int], point_2: Tuple[int, int], color: Tuple[int, int] = (0,0,255), line_thickness: int = 2, line_type: int = 1) -> np.ndarray:
     """Draw bounding boxes on frame.
 
     Args:
